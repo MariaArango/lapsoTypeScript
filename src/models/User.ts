@@ -1,11 +1,11 @@
 export interface UserInterface {
-  id: number;
+  id?: number;
   username: string;
   email: string;
 }
 
 export class User implements UserInterface {
-  id: number;
+  id?: number;
   username: string;
   email: string;
   constructor(user: any) {

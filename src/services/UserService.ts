@@ -28,15 +28,14 @@ export class UserService {
     }
   }
 
-  static async deleteUser(idUser: Number): Promise<UserInterface> {
+  static async deleteUser(idUser: Number): Promise<void> {
     try {
       const [result] = await client.query<RowDataPacket[]>(
         'delete from user where iduser =?',
         idUser
       );
       console.log(result);
-
-      return new User(result[0]);
+      
     } catch (error: any) {
       throw new Error(error.message);
     }
@@ -56,7 +55,7 @@ export class UserService {
     try {
       const newUser = await client.query<RowDataPacket[]>(
         'insert into user (username, email) values (?,?)',
-        [user.username,user.email]
+        [user.username, user.email]
       );
       console.log(newUser);
       return new User(newUser);
