@@ -14,3 +14,4 @@ export class User implements UserInterface {
     this.email = user.email;
   }
 }
+
