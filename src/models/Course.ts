@@ -1,13 +1,13 @@
 
 export interface CourseInterface {
-  id: number;
+  id?: number;
   name: string;
   theme: string;
   price: number;
 }
 
 export class Course implements CourseInterface{
-  id: number;
+  id?: number;
   name: string;
   theme: string;
   price: number;
