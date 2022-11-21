@@ -4,8 +4,8 @@ import { User } from "../models/User";
 const SECRET_KEY = 'H98DFADmdfadfe8987';
 
 export function createToken(user: User, expiresIn: number) {
-  const { id, email } = user;
-  const payload = { id, email };
+  const { id, email, rol } = user;
+  const payload = { id, email, rol };
 
   return jwt.sign(payload, SECRET_KEY, { expiresIn });
 }

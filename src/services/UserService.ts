@@ -4,6 +4,9 @@ import { client } from '../repositories/mysql/sql-client';
 import { User, UserInterface } from '../models/User';
 import { UserSchema, UserSchemaInterface } from '../models/UserSchema';
 import { jwtInterface } from '../models/jwtInterface';
+import { CourseSchemaInterface } from '../models/CourseSchema';
+import { Course, CourseInterface } from '../models/Course';
+
 const jwt = require('../services/jwt');
 
 export class UserService {
@@ -44,7 +47,7 @@ export class UserService {
   }
 
   static async updateUser(
-    id: Number,
+    id: number,
     user: UserSchemaInterface
   ): Promise<UserInterface> {
     try {
@@ -65,8 +68,8 @@ export class UserService {
       user.password = await bcryptjs.hash(user.password, salt);
 
       const [result] = await client.query<ResultSetHeader>(
-        'insert into user (username, email, password) values (?,?,?)',
-        [user.username, user.email, user.password]
+        'insert into user (username, email, password, rol) values (?,?,?,?)',
+        [user.username, user.email, user.password, user.rol]
       );
 
       return this.getUsersById(result.insertId);
@@ -80,7 +83,7 @@ export class UserService {
         'select * from user where email =?',
         email
       );
-        console.log(result)
+
       return new UserSchema(result[0]);
     } catch (error: any) {
       throw new Error(error.message);
@@ -89,22 +92,51 @@ export class UserService {
 
   static async login(email: string, password: string): Promise<jwtInterface> {
     try {
-      console.log(email, password);
       // aca se busca el usuario por email
-      const user =await this.getUsersByEmail(email);
+      const user = await this.getUsersByEmail(email);
       //si usuario no se encuentra se devuelve un error
 
       if (!user) throw { msg: 'error en el email o contraseña' };
       //se compara la contraseña
-      const passwordSuccess = await bcryptjs.compare(password,user.password)
+      const passwordSuccess = await bcryptjs.compare(password, user.password);
 
-    
       // si no coincide se devuelve un error
       if (!passwordSuccess) throw { msg: '---error en el email o contraseña' };
+      const userModel = new User(user);
+
       //si coincide se devuelve el token
-      return { token: jwt.createToken(user, '12h') };
+      return { token: jwt.createToken(userModel, '12h') };
     } catch (error: any) {
       throw new Error(error.message);
     }
   }
+
+  static async addCourse(
+    user: UserSchemaInterface,
+    course: CourseSchemaInterface
+  ): Promise<boolean> {
+    try {
+      await client.query<ResultSetHeader>(
+        'insert into learning (course, user) values (?,?)',
+        [course, user]
+      );
+      return true;
+    } catch (error: any) {
+      throw new Error(error.message);
+    }
+  }
+
+  static async getCourses(id:number): Promise<CourseInterface[]>{
+    try {
+      const [results] = await client.query<RowDataPacket[]>(
+        'select c.* from course c inner join learning l on c.idcourse = l.course where l.user = ?',id
+      );
+      return results.map((course) => new Course(course));
+    } catch (error: any) {
+      throw new Error(error.message);
+    }
+  }
+  
+  //para el método de update pérfil, reutilizamos el método update pasando el id del token
+
 }

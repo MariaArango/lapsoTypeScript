@@ -1,5 +1,6 @@
 import { ResultSetHeader, RowDataPacket } from 'mysql2';
 import { Course, CourseInterface } from '../models/Course';
+import { CourseSchemaInterface } from '../models/CourseSchema';
 import { client } from '../repositories/mysql/sql-client';
 
 export class CourseService {
@@ -14,7 +15,7 @@ export class CourseService {
     }
   }
 
-  static async getCourseById(idCourse: Number): Promise<CourseInterface> {
+  static async getCourseById(idCourse: Number): Promise<CourseSchemaInterface> {
     try {
       const [result] = await client.query<RowDataPacket[]>(
         'select * from course where idcourse =?',
@@ -39,7 +40,7 @@ export class CourseService {
 
   static async updateCourse(
     id: Number,
-    course: CourseInterface
+    course: CourseSchemaInterface
   ): Promise<CourseInterface> {
     try {
       await client.query<ResultSetHeader>(
@@ -52,7 +53,7 @@ export class CourseService {
     }
   }
 
-  static async createCourse(course: CourseInterface): Promise<CourseInterface> {
+  static async createCourse(course: CourseSchemaInterface): Promise<CourseInterface> {
     try {
       const [result] = await client.query<ResultSetHeader>(
         'insert into course (name, theme, price) values (?,?,?)',
