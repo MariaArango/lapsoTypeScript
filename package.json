@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc --build",
     "test": "jest --coverage",
-    "start": "node build/src/index.js",
+    "start": "node build/index.js",
     "dev": "ts-node-dev ./src/index.ts",
     "lint": "eslint ./src --fix",
     "format": "prettier --write ."

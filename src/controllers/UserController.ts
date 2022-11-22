@@ -89,7 +89,7 @@ export class UserController {
   }
   static async getCourses(req: Request, res: Response) {
     const user = req.body.userlogued.id;
-    console.log(user);
+
     try {
       const data = await UserService.getCourses(user);
       res.status(200).json(data);
