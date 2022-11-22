@@ -59,7 +59,7 @@ export class CourseService {
   ): Promise<CourseInterface> {
     try {
       const [result] = await client.query<ResultSetHeader>(
-        'insert into course (name, theme, price) values (?,?,?)',
+        'insert into course (name, theme, price) values (?, ?, ?)',
         [course.name, course.theme, course.price]
       );
       return this.getCourseById(result.insertId);
