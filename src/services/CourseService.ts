@@ -107,14 +107,14 @@ export class CourseService {
       let query = 'select * from course where 1+1';
       const params = [];
       if (req.query.theme) {
-        query += 'and theme =?';
+        query += ' and theme =?';
         params.push(req.query.theme);
       }
       if (req.query.price) {
-        query += 'and price >?';
+        query += ' and price >?';
         params.push(req.query.price);
       }
-      const [results] = await client.query<RowDataPacket[]>(query);
+      const [results] = await client.query<RowDataPacket[]>(query,params);
 
       return results.map((course) => new Course(course));
     } catch (error: any) {
