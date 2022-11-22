@@ -53,7 +53,9 @@ export class CourseService {
     }
   }
 
-  static async createCourse(course: CourseSchemaInterface): Promise<CourseInterface> {
+  static async createCourse(
+    course: CourseSchemaInterface
+  ): Promise<CourseInterface> {
     try {
       const [result] = await client.query<ResultSetHeader>(
         'insert into course (name, theme, price) values (?,?,?)',
@@ -64,4 +66,22 @@ export class CourseService {
       throw new Error(error.message);
     }
   }
+
+  //método para buscar cursos por themes
+
+  static async getCourseByTheme(theme: string): Promise<any> {
+    // try {
+      console.log(theme)
+  //     const [results] = await client.query<RowDataPacket[]>(
+  //       'select * from course where theme = ?',
+  //       theme
+  //     );
+  //     console.log(results)
+  //     return results.map((course)=> new Course(course));
+  //   } catch (error: any) {
+  //     throw new Error(error.message);
+  //   }
+  }
+
+
 }

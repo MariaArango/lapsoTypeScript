@@ -52,4 +52,17 @@ export class CourseController {
       throw new Error(error.message);
     }
   }
+
+  static async getCourseByTheme(req : Request, res:Response){
+    try {
+      const theme = req.params.name;
+     
+      const data = await CourseService.getCourseByTheme(theme);
+      console.log(theme)
+      console.log(data)
+      res.status(200).json({});
+    } catch (error: any) {
+      throw new Error(error.message);
+    }
+  }
 }
