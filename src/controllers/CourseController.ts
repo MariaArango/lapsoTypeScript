@@ -63,35 +63,12 @@ export class CourseController {
     }
   }
 
-  static async getCoursesByThemeAndPrice(req: Request, res: Response){
+  static async getCoursesByThemeAndPrice(req: Request, res: Response) {
     try {
-      // const theme = req.query.theme as string;
-      // const price = Number(req.query.price);
       const data = await CourseService.getCoursesByThemeAndPrice(req);
       res.status(200).json(data);
     } catch (error: any) {
       throw new Error(error.message);
     }
   }
-
-//   static async getCoursesByThemeAndPrice(req: Request, res: Response) {
-//     try {
-//       let query = 'select * from course where 1=1';
-//       const params = [];
-//       if (req.query.theme) {
-//         query += 'and theme=?';
-//         params.push(req.query.theme);
-//         if (req.query.price) {
-//           query += 'and price=?';
-//           params.push(req.query.price);
-//         }
-//       }
-//       const data = await CourseService.getCoursesByThemeAndPrice();
-//       res.status(200).json(data);
-//     } catch (error: any) {
-//       throw new Error(error.message);
-//     }
-//   }
-// }
-
 }
