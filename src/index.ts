@@ -3,7 +3,7 @@ import express from 'express';
 import { CourseRouter } from './routes/CourseRoute';
 import { UserRouter } from './routes/UserRouter';
 import { auth } from './middlewares/authenticated';
-import errorHandler from  './middlewares/error-handler.middleware'
+import {errorHandler, customErrorHandler} from  './middlewares/error-handler.middleware'
 
 
 
@@ -17,6 +17,7 @@ app.use('/user', UserRouter);
 app.use('/course',CourseRouter);
 
 app.use(errorHandler);
+app.use(customErrorHandler);
 
 app.listen(PORT, () => {
   console.log(`server on port ${PORT}`);

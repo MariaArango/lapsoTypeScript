@@ -1,11 +1,21 @@
-export class CustomError {
-    message!: string;
-    status!: number;
-    additionalInfo!: any;
-   
-    constructor(message: string, status: number = 500, additionalInfo: any = {}) {
-      this.message = message;
-      this.status = status;
-      this.additionalInfo = additionalInfo
-    }
+export interface CustomErrorInput {
+  name: string,
+  status: number,
+  message: string
+  }
+  export class CustomError extends Error {
+  name: string;
+  status: number;
+  constructor(customErrorInput: CustomErrorInput) {
+  super(customErrorInput.message);
+  this.name = customErrorInput.name;
+  this.status = customErrorInput.status || 500;
+  }
+  toJson() {
+  return {
+  name: this.name,
+  status: this.status,
+  message: this.message,
+  };
+  }
   }
