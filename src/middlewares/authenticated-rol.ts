@@ -1,20 +1,23 @@
 import { Request, Response, NextFunction } from 'express';
 import { rol } from '../models/Rol';
+import { ForbiddenError } from '../models/forbidden-error';
+
 
 export const authRol = async (
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ) => {
-  const user: rol = req.body.userlogued.rol;
   try {
+    const user: rol = req.body.userlogued.rol;
     if (user !== rol.admin) {
-      res.status(403).json({ msg: 'no tiene permiso de administrador' });
-    }else{
-        res.status(200);
+      throw new ForbiddenError({
+        name: 'authRol',
+        message: 'No tiene permiso de adminstrador',
+      });
     }
     next();
-  } catch (error) {
-    res.status(400).json(error);
+  } catch (error: any) {
+    next(error);
   }
 };

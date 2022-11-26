@@ -6,6 +6,7 @@ import { UserSchema, UserSchemaInterface } from '../models/UserSchema';
 import { jwtInterface } from '../models/jwtInterface';
 import { CourseSchemaInterface } from '../models/CourseSchema';
 import { Course, CourseInterface } from '../models/Course';
+import { CustomError } from '../models/custom-error.model';
 
 const jwt = require('../services/jwt');
 
@@ -18,7 +19,12 @@ export class UserService {
 
       return results.map((user) => new User(user));
     } catch (error: any) {
-      throw new Error(error.message);
+      throw new CustomError({
+        message: 'Error al consultar usuarios',
+        status: 500,
+        name: 'getUsers',
+        customMessage: error.stack
+      });
     }
   }
 
@@ -31,7 +37,12 @@ export class UserService {
 
       return new User(result[0]);
     } catch (error: any) {
-      throw new Error(error.message);
+      throw new CustomError({
+        message: 'Error al consultar usuario por id',
+        status: 500,
+        name: 'getUsersById',
+        customMessage: error.stack
+      });
     }
   }
 
@@ -42,7 +53,12 @@ export class UserService {
         idUser
       );
     } catch (error: any) {
-      throw new Error(error.message);
+      throw new CustomError({
+        message: 'Error al borrar usuario',
+        status: 500,
+        name: 'deleteUser',
+        customMessage: error.stack
+      });
     }
   }
 
@@ -58,7 +74,12 @@ export class UserService {
 
       return this.getUsersById(id);
     } catch (error: any) {
-      throw new Error(error.message);
+      throw new CustomError({
+        message: 'Error al actualizar usuarios',
+        status: 500,
+        name: 'updateUsers',
+        customMessage: error.stack
+      });
     }
   }
 
@@ -74,7 +95,12 @@ export class UserService {
 
       return this.getUsersById(result.insertId);
     } catch (error: any) {
-      throw new Error(error.message);
+      throw new CustomError({
+        message: 'Error al crear usuarios',
+        status: 500,
+        name: 'createUsers',
+        customMessage: error.stack
+      });
     }
   }
   static async getUsersByEmail(email: string): Promise<UserSchemaInterface> {
@@ -86,7 +112,12 @@ export class UserService {
 
       return new UserSchema(result[0]);
     } catch (error: any) {
-      throw new Error(error.message);
+      throw new CustomError({
+        message: 'Error en la consulta de usuario por email',
+        status: 500,
+        name: 'getUserByEmail',
+        customMessage: error.stack
+      });
     }
   }
 
@@ -107,7 +138,12 @@ export class UserService {
       //si coincide se devuelve el token
       return { token: jwt.createToken(userModel, '12h') };
     } catch (error: any) {
-      throw new Error(error.message);
+      throw new CustomError({
+        message: 'Error al loguearse',
+        status: 500,
+        name: 'loginUsers',
+        customMessage: error.stack
+      });
     }
   }
 
@@ -122,21 +158,30 @@ export class UserService {
       );
       return true;
     } catch (error: any) {
-      throw new Error(error.message);
+      throw new CustomError({
+        message: 'Error al añadir curso al usuario registrado',
+        status: 500,
+        name: 'addCourse',
+        customMessage: error.stack
+      });
     }
   }
 
-  static async getCourses(id:number): Promise<CourseInterface[]>{
+  static async getCourses(id: number): Promise<CourseInterface[]> {
     try {
+      
       const [results] = await client.query<RowDataPacket[]>(
-        'select c.* from course c inner join learning l on c.idcourse = l.course where l.user = ?',id
+        'select c.* from course c inner join learning l on c.idcourse = l.course where l.user = ?',
+        id
       );
       return results.map((course) => new Course(course));
     } catch (error: any) {
-      throw new Error(error.message);
+      throw new CustomError({
+        message: 'Error al consultar cursos',
+        status: 500,
+        name: 'getCourses',
+        customMessage: error.stack
+      });
     }
   }
-  
-  //para el método de update pérfil, reutilizamos el método update pasando el id del token
-
 }

@@ -1,52 +1,50 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { rol } from '../models/Rol';
 import { UserSchema } from '../models/UserSchema';
 import { UserService } from '../services/UserService';
-import { CustomError } from '../models/custom-error.model';
 
 export class UserController {
-  static async getUsers(_req: Request, res: Response) {
+  static async getUsers(_req: Request, res: Response, next: NextFunction) {
     try {
       const data = await UserService.getUsers();
       res.status(200).json(data);
     } catch (error: any) {
-      throw new CustomError({
-        message: 'Error al consultar usuarios',
-        status: 500,
-        name: 'getUsers',
-      });
+      next(error);
     }
   }
 
-  static async getUserById(req: Request, res: Response) {
+  static async getUserById(req: Request, res: Response, next: NextFunction) {
     try {
       const idUser = Number(req.params.id);
       const data = await UserService.getUsersById(idUser);
       res.status(200).json(data);
     } catch (error: any) {
-      throw new CustomError({
-        message: 'Error al consultar usuario por id',
-        status: 500,
-        name: 'getUsersById',
-      });
+      next(error);
     }
   }
 
-  static async deleteUser(req: Request, res: Response) {
+  static async getUserPerfil(req: Request, res: Response, next: NextFunction) {
+    try {
+      const idUser = req.body.userlogued.id;
+      console.log(req.body.userlogued);
+      const data = await UserService.getUsersById(idUser);
+      res.status(200).json(data);
+    } catch (error: any) {
+      next(error);
+    }
+  }
+
+  static async deleteUser(req: Request, res: Response, next: NextFunction) {
     try {
       const idUser = Number(req.params.id);
       await UserService.deleteUser(idUser);
       res.status(204).json();
     } catch (error: any) {
-      throw new CustomError({
-        message: 'Error al borrar usuario',
-        status: 500,
-        name: 'deleteUser',
-      });
+      next(error);
     }
   }
 
-  static async updateUser(req: Request, res: Response) {
+  static async updateUser(req: Request, res: Response, next: NextFunction) {
     try {
       req.body;
       const idUser = Number(req.params.id);
@@ -54,99 +52,71 @@ export class UserController {
       const data = await UserService.updateUser(idUser, user);
       res.status(200).json(data);
     } catch (error: any) {
-      throw new CustomError({
-        message: 'Error al actualizar usuarios',
-        status: 500,
-        name: 'updateUsers',
-      });
+      next(error);
     }
   }
 
-  static async createUser(req: Request, res: Response) {
+  static async createUser(req: Request, res: Response, next: NextFunction) {
     try {
       const user = new UserSchema(req.body);
       user.rol = rol.admin;
       const data = await UserService.createUser(user);
       res.status(200).json(data);
     } catch (error: any) {
-      throw new CustomError({
-        message: 'Error al crear usuarios',
-        status: 500,
-        name: 'createUsers',
-      });
+      next(error);
     }
   }
-  static async register(req: Request, res: Response) {
+  static async register(req: Request, res: Response, next: NextFunction) {
     try {
       const user = new UserSchema(req.body);
       user.rol = rol.user;
       const data = await UserService.createUser(user);
       res.status(200).json(data);
     } catch (error: any) {
-      throw new CustomError({
-        message: 'Error al registrarse',
-        status: 500,
-        name: 'registerUsers',
-      });
+      next(error);
     }
   }
 
-  static async login(req: Request, res: Response) {
+  static async login(req: Request, res: Response, next: NextFunction) {
     const { email, password } = req.body;
 
     try {
       const data = await UserService.login(email, password);
       res.status(200).json(data);
     } catch (error: any) {
-      throw new CustomError({
-        message: 'Error al loguearse',
-        status: 500,
-        name: 'loginUsers',
-      });
+      next(error);
     }
   }
 
-  static async addCourse(req: Request, res: Response) {
+  static async addCourse(req: Request, res: Response, next: NextFunction) {
     const { course } = req.body;
     const user = req.body.userlogued.id;
     try {
       const data = await UserService.addCourse(course, user);
       res.status(200).json(data);
     } catch (error: any) {
-      throw new CustomError({
-        message: 'Error al añadir curso al usuario registrado',
-        status: 500,
-        name: 'addCourse',
-      });
+      next(error);
     }
   }
-  static async getCourses(req: Request, res: Response) {
+  static async getCourses(req: Request, res: Response, next: NextFunction) {
     const user = req.body.userlogued.id;
 
     try {
       const data = await UserService.getCourses(user);
       res.status(200).json(data);
     } catch (error: any) {
-      throw new CustomError({
-        message: 'Error al consultar cursos',
-        status: 500,
-        name: 'getCourses',
-      });
+      next(error);
     }
   }
 
-  static async updatePerfil(req: Request, res: Response) {
+  static async updatePerfil(req: Request, res: Response, next: NextFunction) {
     try {
       const idUser = req.body.userlogued.id;
       const user = req.body;
       const data = await UserService.updateUser(idUser, user);
       res.status(200).json(data);
     } catch (error: any) {
-      throw new CustomError({
-        message: 'Error al actualizar los datos del usuario registrado',
-        status: 500,
-        name: 'updatePerfil',
-      });
+      next(error);
     }
   }
 }
