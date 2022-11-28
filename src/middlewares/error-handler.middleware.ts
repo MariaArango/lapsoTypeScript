@@ -1,15 +1,8 @@
-import { Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 
-export function errorHandler(err: any, res: Response) {
-  res.status(500).json({
-    status: 'error',
-    name: err.message,
-    message: err.message,
-  });
-}
-export function customErrorHandler(
+export function errorHandler(
   err: any,
-
+  _req: Request,
   res: Response,
   next: NextFunction
 ) {
@@ -23,5 +16,6 @@ export function customErrorHandler(
       path: err.path,
     });
   }
-  next();
+
+  next(err);
 }

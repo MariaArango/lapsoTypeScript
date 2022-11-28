@@ -1,0 +1,29 @@
+openapi: 3.0.0
+info:
+  title: Tu nombre
+  description:
+  version: 1.0.0
+components:
+  securitySchemes:
+    bearerAuth:            # arbitrary name for the security scheme
+      type: http
+      scheme: bearer
+      bearerFormat: JWT    # optional, arbitrary value for documentation purposes
+security:
+  - bearerAuth: []         # use the same name as above
+paths:
+  /course:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Course
+      responses:
+        '200': # status code
+          description: A JSON array of courses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
