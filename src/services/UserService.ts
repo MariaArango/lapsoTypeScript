@@ -9,6 +9,7 @@ import { Course, CourseInterface } from '../models/Course';
 import { CustomError } from '../models/custom-error.model';
 import { NotFoundError } from '../models/notfound-error';
 import { BadRequestError } from '../models/badrequest-error';
+import { UnauthorizedError } from '../models/unauthorized-error';
 
 const jwt = require('../services/jwt');
 
@@ -172,34 +173,38 @@ export class UserService {
 
   static async login(email: string, password: string): Promise<jwtInterface> {
     try {
+      if (!email || !password) {
+        throw new BadRequestError({
+          message: 'Bad Request, sintaxis inválida',
+          name: 'login',
+        });
+      }
       // aca se busca el usuario por email
       const user = await this.getUsersByEmail(email);
       //si usuario no se encuentra se devuelve un error
 
-      // if (!user)
-      //   throw new BadRequestError({
-      //     message: 'Bad Request, sintaxis inválida',
-      //     name: 'login',
-        // });
-      // if (!user) throw { msg: 'error en el email o contraseña' };
       // se compara la contraseña
       const passwordSuccess = await bcryptjs.compare(password, user.password);
 
       // si no coincide se devuelve un error
-      if (!passwordSuccess || !user.email) {
-        throw new BadRequestError({
-          message: 'Bad Request, sintaxix inválida',
+      console.log(passwordSuccess);
+      if (!passwordSuccess) {
+        throw new UnauthorizedError({
+          message: 'Error login',
           name: 'login',
         });
       }
-      // if (!passwordSuccess) throw { msg: '---error en el email o contraseña' };
+
       const userModel = new User(user);
 
       //si coincide se devuelve el token
 
       return { token: jwt.createToken(userModel, '12h') };
     } catch (error: any) {
-      if (error instanceof BadRequestError) {
+      if (
+        error instanceof BadRequestError ||
+        error instanceof UnauthorizedError
+      ) {
         throw error;
       } else {
         throw new CustomError({
@@ -230,12 +235,19 @@ export class UserService {
       if (error instanceof BadRequestError) {
         throw error;
       } else {
-        throw new CustomError({
-          message: 'Error al añadir curso al usuario registrado',
-          status: 500,
-          name: 'addCourse',
-          customMessage: error.stack,
-        });
+        if (error.message.includes('idcourse')) {
+          throw new NotFoundError({
+            message: 'Course Not found',
+            name: 'addCourse',
+          });
+        } else {
+          throw new CustomError({
+            message: 'Error al añadir curso al usuario registrado',
+            status: 500,
+            name: 'addCourse',
+            customMessage: error.stack,
+          });
+        }
       }
     }
   }

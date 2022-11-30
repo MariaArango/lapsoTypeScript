@@ -96,13 +96,7 @@ paths:
           content:
             apllication/json:
               schema:
-                 $ref: '#/components/schemas/Error'            
-        # '403':
-          # description: Forbidden
-          # content:
-          #   apllication/json:
-          #     schema:
-          #        $ref: '#/components/schemas/Error'
+                 $ref: '#/components/schemas/Error'           
         '404':
           description: Not Found
           content:
@@ -182,24 +176,12 @@ paths:
               schema: 
                 $ref: '#/components/schemas/Course'
                 type: object
-        # '400':
-        #   description: Bad Request
-        #   content:
-        #     apllication/json:
-        #       schema:
-        #          $ref: '#/components/schemas/Error'
         '401':
           description: Unauthorized
           content:
             apllication/json:
               schema:
                  $ref: '#/components/schemas/Error'            
-        # '403':
-        #   description: Forbidden
-        #   content:
-        #     apllication/json:
-        #       schema:
-        #          $ref: '#/components/schemas/Error'
         '404':
           description: Not Found
           content:
@@ -553,18 +535,6 @@ paths:
             apllication/json:
               schema:
                  $ref: '#/components/schemas/Error'
-        # '401':
-        #   description: Unauthorized
-        #   content:
-        #     apllication/json:
-        #       schema:
-        #          $ref: '#/components/schemas/Error'          
-        # '403':
-        #   description: Forbidden
-        #   content:
-        #     apllication/json:
-        #       schema:
-        #          $ref: '#/components/schemas/Error'        
         '500':
           description: Error al loguearse
           content:
@@ -596,18 +566,6 @@ paths:
             apllication/json:
               schema:
                  $ref: '#/components/schemas/Error'             
-        # '401':
-        #   description: Unauthorized
-        #   content:
-        #     apllication/json:
-        #       schema:
-        #          $ref: '#/components/schemas/Error' 
-        # '403':
-        #   description: Forbidden
-        #   content:
-        #     apllication/json:
-        #       schema:
-        #          $ref: '#/components/schemas/Error'          
         '500':
           description: Error al registrarse
           content:
@@ -644,12 +602,6 @@ paths:
             apllication/json:
               schema:
                  $ref: '#/components/schemas/Error'                     
-        # '403':
-        #   description: Forbidden
-        #   content:
-        #     apllication/json:
-        #       schema:
-        #          $ref: '#/components/schemas/Error' 
         '404':
           description: Not Found
           content:
@@ -692,12 +644,6 @@ paths:
             apllication/json:
               schema:
                  $ref: '#/components/schemas/Error' 
-        # '403':
-        #   description: Forbidden
-        #   content:
-        #     apllication/json:
-        #       schema:
-        #          $ref: '#/components/schemas/Error' 
         '500':
           description: Error al actuzalizar el perfil del usuario logueado
           content:
