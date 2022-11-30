@@ -21,9 +21,9 @@ export const auth = async (
         const token = req.header('Authorization')?.replace('Bearer ', '') || '';
         const tokenDecode = jwt.verify(token, SECRET_KEY);
         req.body.userlogued = tokenDecode;
-        next();
       }
     }
+    next();
   } catch (error: any) {
     if (error instanceof JsonWebTokenError) {
       const jsonError = new UnauthorizedError({

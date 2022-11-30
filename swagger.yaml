@@ -1,0 +1,707 @@
+openapi: 3.0.0
+info:
+  title: Lapso academy
+  description:
+  version: 1.0.0
+components:
+  schemas:
+    Course:
+      type: object
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        theme:
+          type: string
+        price:
+          type: number     
+    User:
+      type: object
+      properties:
+        id:
+          type: number
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+        rol:
+          type: string
+          enum: [user, admin]
+    UserWithoutRol:
+      type: object
+      properties:
+        id:
+          type: number
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+    Login:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+    ResponseLogin:
+      type: object
+      properties:
+        token:
+          type: string
+    RelationUserCourse:
+      type: object
+      properties:
+        course:
+          type: number
+    Error:
+      type: object
+      properties:
+        name:
+          type: string
+        status:
+         type: number
+        message:
+          type: string
+  securitySchemes:
+    bearerAuth:            # arbitrary name for the security scheme
+      type: http
+      scheme: bearer
+      bearerFormat: JWT    # optional, arbitrary value for documentation purposes
+security:
+  - bearerAuth: []         # use the same name as above
+paths:
+  /course:
+    get:
+      tags:
+        - Course
+      responses:
+        '200': # status code
+          description: Success
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/Course'
+                type: array
+                items:
+                  type: string
+        '401':
+          description: Unauthorized
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'            
+        # '403':
+          # description: Forbidden
+          # content:
+          #   apllication/json:
+          #     schema:
+          #        $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'                     
+        '500':
+          description: Error al consultar los cursos
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'
+    post:
+      tags:
+        - Course
+      summary: Create a course.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Course'
+              type: object
+      responses: 
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/Course'
+                type: array
+                items:
+                  type: string  
+        '400':
+          description: Bad Request
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'            
+        '403':
+          description: Forbidden
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'                         
+        '500':
+          description: Error al crear el curso
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'          
+  /course/{idcourse}:
+    get:
+      tags:
+        - Course
+      summary: Returns a course by ID.
+      parameters:
+        - name: idcourse
+          in: path
+          required: true
+          description: Parameter description in CommonMark or HTML.
+          schema:
+            type : integer
+            format: int64
+            minimum: 1
+      responses: 
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/Course'
+                type: object
+        # '400':
+        #   description: Bad Request
+        #   content:
+        #     apllication/json:
+        #       schema:
+        #          $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'            
+        # '403':
+        #   description: Forbidden
+        #   content:
+        #     apllication/json:
+        #       schema:
+        #          $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'                              
+        '500':
+          description: Error al consultar el curso
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - Course
+      summary: Delete a course by ID.
+      parameters:
+        - name: idcourse
+          in: path
+          required: true
+          description: Parameter description in CommonMark or HTML.
+          schema:
+            type : integer
+            format: int64
+            minimum: 1
+      responses: 
+        '204':
+          description: No Content
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error' 
+        '401':
+          description: Unauthorized
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'            
+        '403':
+          description: Forbidden
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'              
+        '500':
+          description: Error al eliminar un curso
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error' 
+    put:
+      tags:
+        - Course
+      summary: update a course by ID.
+      parameters:
+        - name: idcourse
+          in: path
+          required: true
+          description: Parameter description in CommonMark or HTML.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Course'
+              type: object
+      responses: 
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/Course'
+                type: object
+        '400':
+          description: Bad Request
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'            
+        '403':
+          description: Forbidden
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'                              
+        '500':
+          description: Error al actualizar el curso
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'
+  /user:
+    get:
+      tags:
+        - User
+      responses:
+        '200': # status code
+          description: Success
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/User'
+                type: array
+                items:
+                  type: string
+        '401':
+          description: Unauthorized
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'            
+        '403':
+          description: Forbidden
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'                     
+        '500':
+          description: Error al consultar los usuarios
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'
+  /user/{iduser}:
+    get:
+      tags:
+        - User
+      summary: Returns a course by ID.
+      parameters:
+        - name: iduser
+          in: path
+          required: true
+          description: Parameter description in CommonMark or HTML.
+          schema:
+            type : integer
+            format: int64
+            minimum: 1
+      responses: 
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/User'
+                type: object
+        '400':
+          description: Bad Request
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'            
+        '403':
+          description: Forbidden
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'                              
+        '500':
+          description: Error al consultar el usuario
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+        - User
+      summary: Delete a user by ID.
+      parameters:
+        - name: iduser
+          in: path
+          required: true
+          description: Parameter description in CommonMark or HTML.
+          schema:
+            type : integer
+            format: int64
+            minimum: 1
+      responses: 
+        '204':
+          description: No Content
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error' 
+        '401':
+          description: Unauthorized
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'            
+        '403':
+          description: Forbidden
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'              
+        '500':
+          description: Error al eliminar un usuario
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'   
+    put:
+      tags:
+        - User
+      summary: update a user by ID.
+      parameters:
+        - name: iduser
+          in: path
+          required: true
+          description: Parameter description in CommonMark or HTML.
+      requestBody:
+        content:
+          application/json:
+           schema:
+              $ref: '#/components/schemas/User'
+              type : object
+      responses: 
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/User'
+                type: object
+        '400':
+          description: Bad Request
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'            
+        '403':
+          description: Forbidden
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'                              
+        '500':
+          description: Error al actualizar el usuario
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'
+  /user/create:
+    post:
+      tags:
+        - User
+      summary: Creates a User.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserWithoutRol'
+              type: object
+      responses: 
+        '200':
+          description: Success
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/User'
+        '400':
+          description: Bad Request
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error' 
+        '401':
+          description: Unauthorized
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'
+        '500':
+          description: Error al crear usuario
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'          
+  /user/login:
+    post:
+      tags:
+        - User
+      summary: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
+      responses: 
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/ResponseLogin'
+        '400':
+          description: Bad Request
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'
+        # '401':
+        #   description: Unauthorized
+        #   content:
+        #     apllication/json:
+        #       schema:
+        #          $ref: '#/components/schemas/Error'          
+        # '403':
+        #   description: Forbidden
+        #   content:
+        #     apllication/json:
+        #       schema:
+        #          $ref: '#/components/schemas/Error'        
+        '500':
+          description: Error al loguearse
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'            
+  /user/register:
+    post:
+      tags:
+        - User
+      summary: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserWithoutRol'
+              type: object
+      responses: 
+        '200':
+          description: OK
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/User'
+        '400':
+          description: Bad Request
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'             
+        # '401':
+        #   description: Unauthorized
+        #   content:
+        #     apllication/json:
+        #       schema:
+        #          $ref: '#/components/schemas/Error' 
+        # '403':
+        #   description: Forbidden
+        #   content:
+        #     apllication/json:
+        #       schema:
+        #          $ref: '#/components/schemas/Error'          
+        '500':
+          description: Error al registrarse
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'         
+  /user/addcourse:
+    post:
+      tags:
+        - User
+      summary: add course to user
+      requestBody:
+        content:
+          application/json:
+           schema:
+              $ref: '#/components/schemas/RelationUserCourse'
+              type : object
+      responses: 
+        '200':
+          description: OK
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/User'
+        '400':
+          description: Bad Request
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'                     
+        # '403':
+        #   description: Forbidden
+        #   content:
+        #     apllication/json:
+        #       schema:
+        #          $ref: '#/components/schemas/Error' 
+        '404':
+          description: Not Found
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error' 
+        '500':
+          description: Error al añadir un curso al usuario logueado
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'          
+  /user/updateperfil:
+    put:
+      tags:
+        - User
+      summary: update a user by ID.
+      requestBody:
+        content:
+          application/json:
+           schema:
+              $ref: '#/components/schemas/UserWithoutRol'
+              type : object
+      responses: 
+        '200':
+          description: Created
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/User'
+        '400':
+          description: Bad Request
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error'           
+        '401':
+          description: Unauthorized
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error' 
+        # '403':
+        #   description: Forbidden
+        #   content:
+        #     apllication/json:
+        #       schema:
+        #          $ref: '#/components/schemas/Error' 
+        '500':
+          description: Error al actuzalizar el perfil del usuario logueado
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error' 
+         

@@ -13,7 +13,7 @@ export class Course implements CourseInterface{
   price: number;
 
   constructor(course: any){
-    this.id = course.id;
+    this.id = course.idcourse;
     this.name = course.name;
     this.theme = course.theme;
     this.price = course.price;

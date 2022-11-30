@@ -16,18 +16,14 @@ const swaggerDocument = parse(swaggerYaml);
 
 app.use(express.json());
 app.use(express.urlencoded());
-
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use(auth);
 
-app.use(express.json());
-app.use(express.urlencoded());
-
-app.use(auth);
 
 app.use('/user', UserRouter);
 app.use('/course', CourseRouter);
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 app.use(errorHandler);
 
 

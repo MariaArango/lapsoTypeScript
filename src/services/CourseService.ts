@@ -4,6 +4,8 @@ import { Course, CourseInterface } from '../models/Course';
 import { CourseSchemaInterface } from '../models/CourseSchema';
 import { client } from '../repositories/mysql/sql-client';
 import { CustomError } from '../models/custom-error.model';
+import { NotFoundError } from '../models/notfound-error';
+import { BadRequestError } from '../models/badrequest-error';
 
 export class CourseService {
   static async getCourseById(idCourse: Number): Promise<CourseSchemaInterface> {
@@ -12,14 +14,24 @@ export class CourseService {
         'select * from course where idcourse =?',
         idCourse
       );
+      if (result.length === 0) {
+        throw new NotFoundError({
+          message: 'Course Not Found',
+          name: 'getCourseById',
+        });
+      }
       return new Course(result[0]);
     } catch (error: any) {
-      throw new CustomError({
-        message: 'Error al buscar curso por id',
-        status: 500,
-        name: 'courseById',
-        customMessage: error.stack
-      });
+      if (error instanceof NotFoundError) {
+        throw error;
+      } else {
+        throw new CustomError({
+          message: 'Error al buscar curso por id',
+          status: 500,
+          name: 'courseById',
+          customMessage: error.stack,
+        });
+      }
     }
   }
 
@@ -30,12 +42,11 @@ export class CourseService {
         idCourse
       );
     } catch (error: any) {
-     
       throw new CustomError({
         message: 'Error al buscar borrar curso',
         status: 500,
         name: 'deleteCourse',
-        customMessage: error.stack
+        customMessage: error.stack,
       });
     }
   }
@@ -45,18 +56,37 @@ export class CourseService {
     course: CourseSchemaInterface
   ): Promise<CourseInterface> {
     try {
+      if(!course.name || !course.theme || !course.price){
+        throw new BadRequestError({
+          message: 'Bad Request',
+          name: 'updateCourse'
+        })
+      }
       await client.query<ResultSetHeader>(
         'update course set name =?, theme=?, price=? where idcourse =?',
         [course.name, course.theme, course.price, id]
       );
+      if (!id) {
+        throw new NotFoundError({
+          message: 'Course Not Found',
+          name: 'updateCourse',
+        });
+      }
       return this.getCourseById(id);
     } catch (error: any) {
-      throw new CustomError({
-        message: 'Error al actualizar un curso',
-        status: 500,
-        name: 'updateCourse',
-        customMessage: error.stack
-      });
+      if (error instanceof NotFoundError) {
+        throw error;
+      } 
+      if( error instanceof BadRequestError){
+        throw error;
+      } else {
+        throw new CustomError({
+          message: 'Error al actualizar un curso',
+          status: 500,
+          name: 'updateCourse',
+          customMessage: error.stack,
+        });
+      }
     }
   }
 
@@ -64,24 +94,34 @@ export class CourseService {
     course: CourseSchemaInterface
   ): Promise<CourseInterface> {
     try {
+      if (!course.name || !course.theme || !course.price) {
+        throw new BadRequestError({
+          message: 'Bad Request, sintaxis inválida',
+          name: 'createCourse',
+        });
+      }
       const [result] = await client.query<ResultSetHeader>(
         'insert into course (name, theme, price) values (?,?,?)',
         [course.name, course.theme, course.price]
       );
+
       return this.getCourseById(result.insertId);
     } catch (error: any) {
-      throw new CustomError({
-        message: 'Error al crear',
-        status: 500,
-        name: 'createCourse',
-        customMessage: error.stack
-      });
+      if (error instanceof BadRequestError) {
+        throw error;
+      } else {
+        throw new CustomError({
+          message: 'Error al crear',
+          status: 500,
+          name: 'createCourse',
+          customMessage: error.stack,
+        });
+      }
     }
   }
 
   static async getCourses(req: Request): Promise<CourseInterface[]> {
     try {
-     
       let query = 'select * from course where 1=1';
       const params = [];
       if (req.query.theme) {
@@ -102,14 +142,24 @@ export class CourseService {
       }
       const [results] = await client.query<RowDataPacket[]>(query, params);
 
+      if (results.length === 0) {
+        throw new NotFoundError({
+          message: 'Course Not Found',
+          name: 'getCourses',
+        });
+      }
       return results.map((course) => new Course(course));
     } catch (error: any) {
-      throw new CustomError({
-        message: 'Error al consultar cursos',
-        status: 500,
-        name: 'getCourses',
-        customMessage: error.stack
-      });
+      if (error instanceof NotFoundError) {
+        throw error;
+      } else {
+        throw new CustomError({
+          message: 'Error al consultar cursos',
+          status: 500,
+          name: 'getCourses',
+          customMessage: error.stack,
+        });
+      }
     }
   }
 }
