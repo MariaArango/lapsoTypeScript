@@ -4,14 +4,12 @@ import { client } from '../repositories/mysql/sql-client';
 import { User, UserInterface } from '../models/User';
 import { UserSchema, UserSchemaInterface } from '../models/UserSchema';
 import { jwtInterface } from '../models/jwtInterface';
-// import { CourseSchemaInterface } from '../models/CourseSchema';
 import { Course, CourseInterface } from '../models/Course';
 import { CustomError } from '../models/custom-error.model';
 import { NotFoundError } from '../models/notfound-error';
-import { BadRequestError } from '../models/badrequest-error';
 import { UnauthorizedError } from '../models/unauthorized-error';
 
-const jwt = require('../services/jwt');
+import * as jwt from '../utils/jwt';
 
 export class UserService {
   static async getUsers(): Promise<UserInterface[]> {
@@ -22,7 +20,7 @@ export class UserService {
       if (results.length === 0) {
         throw new NotFoundError({
           message: 'User Not Found',
-          name: 'getUsers',
+          name: 'getUsersService',
         });
       }
       return results.map((user) => new User(user));
@@ -33,7 +31,7 @@ export class UserService {
         throw new CustomError({
           message: 'Error al consultar usuarios',
           status: 500,
-          name: 'getUsers',
+          name: 'getUsersService',
           customMessage: error.stack,
         });
       }
@@ -50,7 +48,7 @@ export class UserService {
       if (result.length === 0) {
         throw new NotFoundError({
           message: 'User Not Found',
-          name: 'getUsersById',
+          name: 'getUsersByIdService',
         });
       }
       return new User(result[0]);
@@ -61,7 +59,7 @@ export class UserService {
         throw new CustomError({
           message: 'Error al consultar usuario por id',
           status: 500,
-          name: 'getUsersById',
+          name: 'getUsersByIdService',
           customMessage: error.stack,
         });
       }
@@ -78,7 +76,7 @@ export class UserService {
       throw new CustomError({
         message: 'Error al borrar usuario',
         status: 500,
-        name: 'deleteUser',
+        name: 'deleteUserService',
         customMessage: error.stack,
       });
     }
@@ -89,12 +87,6 @@ export class UserService {
     user: UserSchemaInterface
   ): Promise<UserInterface> {
     try {
-      if (!user.username || !user.email || !user.password) {
-        throw new BadRequestError({
-          message: 'Bad Request, sintaxis inválida',
-          name: 'updateUser',
-        });
-      }
       await client.query<ResultSetHeader>(
         'update user set username = ?, email = ? where iduser = ?',
         [user.username, user.email, id]
@@ -102,21 +94,18 @@ export class UserService {
       if (!id) {
         throw new NotFoundError({
           message: 'User Not Found',
-          name: 'updateUser',
+          name: 'updateUserService',
         });
       }
       return this.getUsersById(id);
     } catch (error: any) {
-      if (error instanceof BadRequestError) {
-        throw error;
-      }
       if (error instanceof NotFoundError) {
         throw error;
       } else {
         throw new CustomError({
           message: 'Error al actualizar usuarios',
           status: 500,
-          name: 'updateUsers',
+          name: 'updateUserService',
           customMessage: error.stack,
         });
       }
@@ -125,12 +114,6 @@ export class UserService {
 
   static async createUser(user: UserSchemaInterface): Promise<UserInterface> {
     try {
-      if (!user.username || !user.email || !user.password) {
-        throw new BadRequestError({
-          message: 'Bad Request, sintaxis inválida',
-          name: 'createUser',
-        });
-      }
       const salt = bcryptjs.genSaltSync(10);
       user.password = await bcryptjs.hash(user.password, salt);
 
@@ -141,16 +124,12 @@ export class UserService {
 
       return this.getUsersById(result.insertId);
     } catch (error: any) {
-      if (error instanceof BadRequestError) {
-        throw error;
-      } else {
-        throw new CustomError({
-          message: 'Error al crear usuarios',
-          status: 500,
-          name: 'createUsers',
-          customMessage: error.stack,
-        });
-      }
+      throw new CustomError({
+        message: 'Error al crear usuarios',
+        status: 500,
+        name: 'createUsersService',
+        customMessage: error.stack,
+      });
     }
   }
   static async getUsersByEmail(email: string): Promise<UserSchemaInterface> {
@@ -165,7 +144,7 @@ export class UserService {
       throw new CustomError({
         message: 'Error en la consulta de usuario por email',
         status: 500,
-        name: 'getUserByEmail',
+        name: 'getUserByEmailService',
         customMessage: error.stack,
       });
     }
@@ -173,12 +152,6 @@ export class UserService {
 
   static async login(email: string, password: string): Promise<jwtInterface> {
     try {
-      if (!email || !password) {
-        throw new BadRequestError({
-          message: 'Bad Request, sintaxis inválida',
-          name: 'login',
-        });
-      }
       // aca se busca el usuario por email
       const user = await this.getUsersByEmail(email);
       //si usuario no se encuentra se devuelve un error
@@ -187,11 +160,11 @@ export class UserService {
       const passwordSuccess = await bcryptjs.compare(password, user.password);
 
       // si no coincide se devuelve un error
-      console.log(passwordSuccess);
+
       if (!passwordSuccess) {
         throw new UnauthorizedError({
           message: 'Error login',
-          name: 'login',
+          name: 'loginService',
         });
       }
 
@@ -201,16 +174,13 @@ export class UserService {
 
       return { token: jwt.createToken(userModel, '12h') };
     } catch (error: any) {
-      if (
-        error instanceof BadRequestError ||
-        error instanceof UnauthorizedError
-      ) {
+      if (error instanceof UnauthorizedError) {
         throw error;
       } else {
         throw new CustomError({
           message: 'Error al loguearse',
           status: 500,
-          name: 'loginUsers',
+          name: 'loginUserService',
           customMessage: error.stack,
         });
       }
@@ -219,35 +189,24 @@ export class UserService {
 
   static async addCourse(course: number, user: number): Promise<boolean> {
     try {
-      if (!course) {
-        throw new BadRequestError({
-          message: 'Course Not Found',
-          name: 'addCourse',
-        });
-      }
       await client.query<ResultSetHeader>(
         'insert into learning (course, user) values (?,?)',
         [course, user]
       );
-
       return true;
     } catch (error: any) {
-      if (error instanceof BadRequestError) {
-        throw error;
+      if (error.message.includes('idcourse')) {
+        throw new NotFoundError({
+          message: 'Course Not found',
+          name: 'addCourseService',
+        });
       } else {
-        if (error.message.includes('idcourse')) {
-          throw new NotFoundError({
-            message: 'Course Not found',
-            name: 'addCourse',
-          });
-        } else {
-          throw new CustomError({
-            message: 'Error al añadir curso al usuario registrado',
-            status: 500,
-            name: 'addCourse',
-            customMessage: error.stack,
-          });
-        }
+        throw new CustomError({
+          message: 'Error al añadir curso al usuario registrado',
+          status: 500,
+          name: 'addCourseService',
+          customMessage: error.stack,
+        });
       }
     }
   }
@@ -261,7 +220,7 @@ export class UserService {
       if (results.length === 0) {
         throw new NotFoundError({
           message: 'User Not Found',
-          name: 'getCourses',
+          name: 'getCoursesService',
         });
       }
       return results.map((course) => new Course(course));
@@ -272,7 +231,7 @@ export class UserService {
         throw new CustomError({
           message: 'Error al consultar cursos',
           status: 500,
-          name: 'getCourses',
+          name: 'getCoursesService',
           customMessage: error.stack,
         });
       }

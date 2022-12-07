@@ -650,4 +650,31 @@ paths:
             apllication/json:
               schema:
                  $ref: '#/components/schemas/Error' 
+  /user/perfil:
+    get:
+      tags:
+        - User
+      responses:
+        '200':
+          description: consulta perfil de usuario logueado
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/User'
+                
+        '401':
+          description: Unauthorized
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error' 
+        
+        '500':
+          description: Error al actuzalizar el perfil del usuario logueado
+          content:
+            apllication/json:
+              schema:
+                 $ref: '#/components/schemas/Error' 
+
+
          

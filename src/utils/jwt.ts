@@ -3,7 +3,7 @@ import { User } from "../models/User";
 
 const SECRET_KEY = 'H98DFADmdfadfe8987';
 
-export function createToken(user: User, expiresIn: number) {
+export function createToken(user: User, expiresIn: string) {
   const { id, email, rol } = user;
   const payload = { id, email, rol };
 

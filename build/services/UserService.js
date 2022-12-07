@@ -15,7 +15,7 @@ const sql_client_1 = require("../repositories/mysql/sql-client");
 const User_1 = require("../models/User");
 const UserSchema_1 = require("../models/UserSchema");
 const Course_1 = require("../models/Course");
-const jwt = require('../services/jwt');
+const jwt = require('../utils/jwt');
 class UserService {
     static getUsers() {
         return __awaiter(this, void 0, void 0, function* () {

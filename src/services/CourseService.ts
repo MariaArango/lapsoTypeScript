@@ -5,7 +5,7 @@ import { CourseSchemaInterface } from '../models/CourseSchema';
 import { client } from '../repositories/mysql/sql-client';
 import { CustomError } from '../models/custom-error.model';
 import { NotFoundError } from '../models/notfound-error';
-import { BadRequestError } from '../models/badrequest-error';
+
 
 export class CourseService {
   static async getCourseById(idCourse: Number): Promise<CourseSchemaInterface> {
@@ -17,7 +17,7 @@ export class CourseService {
       if (result.length === 0) {
         throw new NotFoundError({
           message: 'Course Not Found',
-          name: 'getCourseById',
+          name: 'getCourseByIdService',
         });
       }
       return new Course(result[0]);
@@ -28,7 +28,7 @@ export class CourseService {
         throw new CustomError({
           message: 'Error al buscar curso por id',
           status: 500,
-          name: 'courseById',
+          name: 'courseByIdService',
           customMessage: error.stack,
         });
       }
@@ -45,7 +45,7 @@ export class CourseService {
       throw new CustomError({
         message: 'Error al buscar borrar curso',
         status: 500,
-        name: 'deleteCourse',
+        name: 'deleteCourseService',
         customMessage: error.stack,
       });
     }
@@ -56,12 +56,6 @@ export class CourseService {
     course: CourseSchemaInterface
   ): Promise<CourseInterface> {
     try {
-      if(!course.name || !course.theme || !course.price){
-        throw new BadRequestError({
-          message: 'Bad Request',
-          name: 'updateCourse'
-        })
-      }
       await client.query<ResultSetHeader>(
         'update course set name =?, theme=?, price=? where idcourse =?',
         [course.name, course.theme, course.price, id]
@@ -69,21 +63,18 @@ export class CourseService {
       if (!id) {
         throw new NotFoundError({
           message: 'Course Not Found',
-          name: 'updateCourse',
+          name: 'updateCourseService',
         });
       }
       return this.getCourseById(id);
     } catch (error: any) {
       if (error instanceof NotFoundError) {
         throw error;
-      } 
-      if( error instanceof BadRequestError){
-        throw error;
       } else {
         throw new CustomError({
           message: 'Error al actualizar un curso',
           status: 500,
-          name: 'updateCourse',
+          name: 'updateCourseService',
           customMessage: error.stack,
         });
       }
@@ -94,12 +85,6 @@ export class CourseService {
     course: CourseSchemaInterface
   ): Promise<CourseInterface> {
     try {
-      if (!course.name || !course.theme || !course.price) {
-        throw new BadRequestError({
-          message: 'Bad Request, sintaxis inválida',
-          name: 'createCourse',
-        });
-      }
       const [result] = await client.query<ResultSetHeader>(
         'insert into course (name, theme, price) values (?,?,?)',
         [course.name, course.theme, course.price]
@@ -107,16 +92,12 @@ export class CourseService {
 
       return this.getCourseById(result.insertId);
     } catch (error: any) {
-      if (error instanceof BadRequestError) {
-        throw error;
-      } else {
-        throw new CustomError({
-          message: 'Error al crear',
-          status: 500,
-          name: 'createCourse',
-          customMessage: error.stack,
-        });
-      }
+      throw new CustomError({
+        message: 'Error al crear',
+        status: 500,
+        name: 'createCourseService',
+        customMessage: error.stack,
+      });
     }
   }
 
@@ -145,7 +126,7 @@ export class CourseService {
       if (results.length === 0) {
         throw new NotFoundError({
           message: 'Course Not Found',
-          name: 'getCourses',
+          name: 'getCoursesService',
         });
       }
       return results.map((course) => new Course(course));
@@ -156,7 +137,7 @@ export class CourseService {
         throw new CustomError({
           message: 'Error al consultar cursos',
           status: 500,
-          name: 'getCourses',
+          name: 'getCoursesService',
           customMessage: error.stack,
         });
       }
