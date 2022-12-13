@@ -109,15 +109,15 @@ export class UserController {
   }
 
   static async login(req: Request, res: Response, next: NextFunction) {
-    const {email, password} = req.body
-    const validationResult = v.validate({email,password}, loginSchema);
-      console.log(validationResult)
-      if (validationResult.errors.length > 0) {
-        throw new BadRequestError({
-          message: 'Bad Request',
-          name: 'registerController',
-        });
-      }
+    const { email, password } = req.body;
+    const validationResult = v.validate({ email, password }, loginSchema);
+
+    if (validationResult.errors.length > 0) {
+      throw new BadRequestError({
+        message: 'Bad Request',
+        name: 'registerController',
+      });
+    }
     try {
       const data = await UserService.login(email, password);
       res.status(200).json(data);

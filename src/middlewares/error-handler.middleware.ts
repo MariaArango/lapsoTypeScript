@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import logger from '../libs/logger';
 
 export function errorHandler(
   err: any,
@@ -6,6 +7,7 @@ export function errorHandler(
   res: Response,
   next: NextFunction
 ) {
+  logger.error(err.stack);
   if (err.toJson && typeof err.toJson === 'function') {
     res.status(err.status).json(err.toJson());
   } else {
