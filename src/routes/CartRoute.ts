@@ -6,6 +6,9 @@ const CartRouter = Router();
 
 CartRouter.route('/add').post(CartController.addCourseCart);
 CartRouter.route('/:id').get(CartController.getCartById);
-CartRouter.route('/user/:id').get(CartController.getCartByUser);
+CartRouter.route('/user/:id').get(CartController.cartByUser);
+CartRouter.route('/delete').put(CartController.deleteCourseCart);
+CartRouter.route('/comprar').put(CartController.cleanCart);
+
 
 export { CartRouter };

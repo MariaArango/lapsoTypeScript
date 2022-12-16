@@ -6,6 +6,7 @@ export interface UserInterface {
   username: string;
   email: string;
   rol: rol;
+  // cart?: string;
 }
 
 export class User implements UserInterface {
@@ -13,10 +14,12 @@ export class User implements UserInterface {
   username: string;
   email: string;
   rol:rol;
+  // cart?:string;
   constructor(user: any) {
     this.id = user.iduser || 0;
     this.username = user.username;
     this.email = user.email;
     this.rol = user.rol;
+    // this.cart = user.cart;
   }
 }
