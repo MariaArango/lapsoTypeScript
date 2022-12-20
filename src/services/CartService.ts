@@ -13,6 +13,7 @@ export class CartService {
     try {
       const cartSchema = await this.cartByUser(user);
       const cart = new Cart(cartSchema);
+
       //comprobamos si el curso esta incluido en los cursos del usuario
       if (!cart.courses.includes(course)) {
         //tenemos que controlar que el curso exista
@@ -20,12 +21,14 @@ export class CartService {
         cart.courses.push(course);
         const cartFilter = cart.courses.filter((c) => c !== 0);
         cartSchema.setCourses(cartFilter);
-
+        const total = await this.getTotal(cartSchema.courses);
+        console.log(total);
         await client.query<ResultSetHeader>(
-          'update cart set courses = ? where idcart = ?',
-          [cartSchema.courses, cartSchema.id]
+          'update cart set courses = ?,total =? where idcart = ?',
+          [cartSchema.courses, total, cartSchema.id]
         );
       }
+
       return this.getCartById(cartSchema.id);
     } catch (error: any) {
       if (error.message.includes('idcourse')) {
@@ -112,9 +115,10 @@ export class CartService {
 
       //actualizamos los cursos para borrar el curso elegido
       cartSchema.setCourses(cartFilter);
+      const total = await this.getTotal(cartSchema.courses);
       await client.query<ResultSetHeader>(
-        'update cart set courses = ? where user = ?',
-        [cartSchema.courses, cartSchema.user]
+        'update cart set courses = ?,total=? where user = ?',
+        [cartSchema.courses,total, cartSchema.user]
       );
     } catch (error: any) {
       throw new CustomError({
@@ -145,5 +149,11 @@ export class CartService {
         customMessage: error.stack,
       });
     }
+  }
+  static async getTotal(courses: string) {
+    const [result] = await client.query<RowDataPacket[]>(
+      `SELECT SUM(price) AS total FROM course where idcourse IN (${courses})`
+    );
+    return result[0].total || 0;
   }
 }

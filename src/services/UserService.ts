@@ -190,7 +190,7 @@ export class UserService {
   static async addCourse(course: number, user: number): Promise<boolean> {
     try {
       await client.query<ResultSetHeader>(
-        'insert into learning (course, user) values (?,?)',
+        'insert into purchase (course, user) values (?,?)',
         [course, user]
       );
       return true;
@@ -211,10 +211,12 @@ export class UserService {
     }
   }
 
+  // método cuando era learning y metias solo el iduser y idcourse
+
   static async getCourses(id: number): Promise<CourseInterface[]> {
     try {
       const [results] = await client.query<RowDataPacket[]>(
-        'select c.* from course c inner join learning l on c.idcourse = l.course where l.user = ?',
+        'select c.* from course c inner join purchase p on c.idcourse = p.course where p.user = ?',
         id
       );
       if (results.length === 0) {

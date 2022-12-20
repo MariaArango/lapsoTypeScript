@@ -9,6 +9,7 @@ import { UserRouter } from './routes/UserRouter';
 import { auth } from './middlewares/authenticated';
 import { errorHandler } from './middlewares/error-handler.middleware';
 import { CartRouter } from './routes/CartRoute';
+import { PurchaseRouter } from './routes/PurchaseRoute';
 
 
 const { PORT } = process.env;
@@ -34,6 +35,7 @@ app.use(auth);
 app.use('/user', UserRouter);
 app.use('/course', CourseRouter);
 app.use('/cart',CartRouter);
+app.use('/purchase',PurchaseRouter);
 
 app.use(errorHandler);
 
